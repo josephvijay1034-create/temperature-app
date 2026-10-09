@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Connection Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 320px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #01579b;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Firebase Realtime DB</h2>
+    <input type="text" id="dataInput" placeholder="Enter data to send" />
+    <button onclick="sendData()">Send to Firebase</button>
+    <div id="status">Connecting...</div>
+  </div>
+
+  <!-- Firebase Modular SDK Script Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // Ungaludaiya Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCIUPy_kDhs0Qv8dHdz42REsLjGqUJbM04",
+      authDomain: "iot-with-c-program-8460e.firebaseapp.com",
+      databaseURL: "https://iot-with-c-program-8460e-default-rtdb.firebaseio.com",
+      projectId: "iot-with-c-program-8460e",
+      storageBucket: "iot-with-c-program-8460e.firebasestorage.app",
+      messagingSenderId: "817173468979",
+      appId: "1:817173468979:web:dc315685ba87884fa09046",
+      measurementId: "G-W2XEJ1HW0V"
+    };
+
+    // Firebase App & Database Initialize
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const statusDiv = document.getElementById("status");
+
+    // Realtime-a Database-la irundhu data read panna (Connection Check)
+    const testRef = ref(db, 'testData');
+    onValue(testRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data !== null) {
+        statusDiv.innerHTML = "Connected! Current Value: " + JSON.stringify(data);
+      } else {
+        statusDiv.innerHTML = "Connected to Firebase!";
+      }
+    }, (error) => {
+      statusDiv.innerHTML = "Error: " + error.message;
+    });
+
+    // Button click pannumbo data send panradhukana function
+    window.sendData = function() {
+      const value = document.getElementById("dataInput").value;
+      if (!value) {
+        alert("Please enter some text!");
+        return;
+      }
+
+      set(ref(db, 'testData'), {
+        message: value,
+        timestamp: new Date().toISOString()
+      })
+      .then(() => {
+        alert("Data successfully sent to Firebase!");
+        document.getElementById("dataInput").value = "";
+      })
+      .catch((error) => {
+        alert("Failed to send data: " + error.message);
+      });
+    };
+  </script>
+
+</body>
+</html>
